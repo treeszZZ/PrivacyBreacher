@@ -1,119 +1,83 @@
 package io.nandandesai.privacybreacher;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.ImageButton;
-import android.widget.PopupMenu;
-import android.widget.Switch;
-import android.widget.Toast;
+import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
 
-    private static final String TAG = "MainActivity";
+public class MainActivity extends AppCompatActivity implements ConfirmAdapter.OnConfirmListener {
+
+    private RecyclerView recyclerView;
+    private TextView emptyText;
+    private ConfirmAdapter adapter;
+    private DataBaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
+        recyclerView = findViewById(R.id.confirmRecyclerView);
+        emptyText = findViewById(R.id.emptyText);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        adapter = new ConfirmAdapter(this, this);
+        recyclerView.setAdapter(adapter);
+
+        dbHelper = new DataBaseHelper(this);
+
+        // 启动服务（如果未运行）
         if (!isMyServiceRunning(PrivacyBreacherService.class)) {
-            //start the foreground service
             Intent serviceIntent = new Intent(this, PrivacyBreacherService.class);
             startService(serviceIntent);
         }
 
-        //on click listeners
-        ImageButton optionsButton = findViewById(R.id.optionsButton);
-        optionsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showPopup(v);
-            }
-        });
-
-        Button physicalMonitorButton = findViewById(R.id.physicalMonitorButton);
-        physicalMonitorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, PhysicalMonitorActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        Button phoneMonitorButton = findViewById(R.id.phoneMonitorButton);
-        phoneMonitorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, PhoneMonitorActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        Button phoneInfoButton = findViewById(R.id.phoneInfoButton);
-        phoneInfoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, PhoneInfoActivity.class);
-                startActivity(intent);
-            }
-        });
-
-
-        //service switch
-        Switch serviceSwitch = findViewById(R.id.serviceSwitch);
-        serviceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i(TAG, "onCheckedChanged: isChecked: "+isChecked);
-                if(isChecked){
-                    Log.i(TAG, "onCheckedChanged: start foreground and stop background service");
-                    Toast.makeText(getApplicationContext(), "Starting Foreground Service", Toast.LENGTH_LONG).show();
-                }else{
-                    Log.i(TAG, "onCheckedChanged: start background and stop foreground service");
-                    Toast.makeText(getApplicationContext(), "Starting Background Service", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+        // 加载数据
+        loadUnconfirmedRecords();
     }
 
-    public void showPopup(View v) {
-        PopupMenu popup = new PopupMenu(this, v);
-        MenuInflater inflater = popup.getMenuInflater();
-        Menu menu = popup.getMenu();
-        inflater.inflate(R.menu.home_menu, menu);
-        MenuItem aboutMenu = menu.findItem(R.id.menu_about);
-        aboutMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
+    private void loadUnconfirmedRecords() {
+        Cursor cursor = dbHelper.getUnconfirmedEvents();
+        List<ConfirmRecord> records = new ArrayList<>();
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                long id = cursor.getLong(cursor.getColumnIndex(DataBaseHelper.COLUMN_ID));
+                long timestamp = cursor.getLong(cursor.getColumnIndex(DataBaseHelper.COLUMN_TIMESTAMP));
+                String date = cursor.getString(cursor.getColumnIndex(DataBaseHelper.COLUMN_SLEEP_DATE));
+                String time = DataBaseHelper.formatTime(timestamp);
+                records.add(new ConfirmRecord(id, date, time, timestamp));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
 
-                Intent intent = new Intent(MainActivity.this, AboutActivity.class);
-                startActivity(intent);
+        if (records.isEmpty()) {
+            emptyText.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            emptyText.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+            adapter.setRecords(records);
+        }
+    }
 
-                return false;
-            }
-        });
-
-        MenuItem exitMenu = menu.findItem(R.id.menu_exit);
-        exitMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                exitApp();
-                return false;
-            }
-        });
-        popup.show();
+    @Override
+    public void onConfirm(long id) {
+        // 标记为已确认
+        int rows = dbHelper.confirmEvent(id);
+        if (rows > 0) {
+            // 刷新列表
+            loadUnconfirmedRecords();
+        }
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -126,9 +90,11 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    private void exitApp() {
-        Intent serviceIntent = new Intent(MainActivity.this, PrivacyBreacherService.class);
-        MainActivity.this.stopService(serviceIntent);
-        finish();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbHelper != null) {
+            dbHelper.close();
+        }
     }
 }
