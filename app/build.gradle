@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace 'io.nandandesai.privacybreacher'
     compileSdk 34
 
     defaultConfig {
