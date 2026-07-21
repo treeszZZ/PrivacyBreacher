@@ -2,4 +2,5 @@
 <resources>
     <item name="tag_sleep_hour" type="id" />
     <item name="tag_has_record" type="id" />
+    <item name="tag_sleep_date" type="id" />
 </resources>
