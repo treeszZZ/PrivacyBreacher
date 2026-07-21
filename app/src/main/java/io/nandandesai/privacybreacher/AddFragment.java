@@ -2,6 +2,7 @@ package io.nandandesai.privacybreacher;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,8 @@ public class AddFragment extends Fragment {
     private Button btnDate, btnTime, btnSave;
     private int selectedYear, selectedMonth, selectedDay;
     private int selectedHour, selectedMinute;
+    private boolean isDateSelected = false;
+    private boolean isTimeSelected = false;
 
     @Nullable
     @Override
@@ -36,29 +39,31 @@ public class AddFragment extends Fragment {
         btnTime = view.findViewById(R.id.btnTime);
         btnSave = view.findViewById(R.id.btnSave);
 
-        // 默认选中当前时间
+        // 默认选中当前日期和时间
         Calendar cal = Calendar.getInstance();
         selectedYear = cal.get(Calendar.YEAR);
         selectedMonth = cal.get(Calendar.MONTH);
         selectedDay = cal.get(Calendar.DAY_OF_MONTH);
         selectedHour = cal.get(Calendar.HOUR_OF_DAY);
         selectedMinute = cal.get(Calendar.MINUTE);
+        isDateSelected = true;
+        isTimeSelected = true;
         updateDateButton();
         updateTimeButton();
 
         btnDate.setOnClickListener(v -> showDatePicker());
         btnTime.setOnClickListener(v -> showTimePicker());
-
         btnSave.setOnClickListener(v -> saveRecord());
     }
 
     private void showDatePicker() {
         DatePickerDialog dialog = new DatePickerDialog(
-                getContext(),
+                requireContext(),
                 (view, year, month, dayOfMonth) -> {
                     selectedYear = year;
                     selectedMonth = month;
                     selectedDay = dayOfMonth;
+                    isDateSelected = true;
                     updateDateButton();
                 },
                 selectedYear, selectedMonth, selectedDay
@@ -68,10 +73,11 @@ public class AddFragment extends Fragment {
 
     private void showTimePicker() {
         TimePickerDialog dialog = new TimePickerDialog(
-                getContext(),
+                requireContext(),
                 (view, hourOfDay, minute) -> {
                     selectedHour = hourOfDay;
                     selectedMinute = minute;
+                    isTimeSelected = true;
                     updateTimeButton();
                 },
                 selectedHour, selectedMinute, true
@@ -90,6 +96,11 @@ public class AddFragment extends Fragment {
     }
 
     private void saveRecord() {
+        if (!isDateSelected || !isTimeSelected) {
+            Toast.makeText(getContext(), "请完整选择日期和时间", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Calendar cal = Calendar.getInstance();
         cal.set(selectedYear, selectedMonth, selectedDay, selectedHour, selectedMinute);
         long timestamp = cal.getTimeInMillis();
@@ -101,7 +112,6 @@ public class AddFragment extends Fragment {
 
         if (id > 0) {
             Toast.makeText(getContext(), "记录已添加", Toast.LENGTH_SHORT).show();
-            // 切回首页
             if (getActivity() != null) {
                 ((MainActivity) getActivity()).switchToHome();
             }
