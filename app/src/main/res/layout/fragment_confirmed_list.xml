@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="已确认记录"
+            android:textColor="#1A2A3A"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvSortButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="倒序"
+            android:textColor="#4A90D9"
+            android:textSize="14sp"
+            android:padding="8dp"
+            android:background="@drawable/bg_rounded_button"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvConfirmed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvConfirmedEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="暂无已确认记录"
+        android:textColor="#8BA3C7"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+</LinearLayout>
