@@ -75,10 +75,18 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return rows;
     }
 
-    // 新增方法：查询某月所有已确认的记录
+    // 查询所有已确认记录（用于列表视图）
+    public Cursor getAllConfirmedEvents(String order) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String orderBy = COLUMN_SLEEP_DATE + " " + order + ", " + COLUMN_TIMESTAMP + " " + order;
+        return db.query(TABLE_EVENTS, null,
+                COLUMN_IS_CONFIRMED + "=?", new String[]{"1"},
+                null, null, orderBy);
+    }
+
+    // 查询某月已确认记录（用于日历视图）
     public Cursor getConfirmedEventsForMonth(String yearMonth) {
         SQLiteDatabase db = this.getReadableDatabase();
-        // yearMonth 格式: "2025-01"
         String query = "SELECT " + COLUMN_SLEEP_DATE + ", " + COLUMN_TIMESTAMP +
                 " FROM " + TABLE_EVENTS +
                 " WHERE " + COLUMN_IS_CONFIRMED + " = 1" +
