@@ -111,7 +111,6 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
     @Override
     public void onResume() {
         super.onResume();
-        // 每次返回该页面时刷新数据（例如从设置页返回）
         loadData();
     }
 
