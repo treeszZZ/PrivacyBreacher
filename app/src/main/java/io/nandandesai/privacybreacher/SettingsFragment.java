@@ -1,6 +1,7 @@
 package io.nandandesai.privacybreacher;
 
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -31,10 +32,11 @@ public class SettingsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         tvSleepInterval = view.findViewById(R.id.tvSleepInterval);
-        sharedPreferences = getContext().getSharedPreferences("SleepTrackerPrefs", Context.MODE_PRIVATE);
+        sharedPreferences = requireContext().getSharedPreferences("SleepTrackerPrefs", Context.MODE_PRIVATE);
 
         loadThreshold();
 
+        // 点击时间文本弹出时间选择器
         tvSleepInterval.setOnClickListener(v -> showTimePicker());
     }
 
@@ -49,15 +51,26 @@ public class SettingsFragment extends Fragment {
 
     private void showTimePicker() {
         TimePickerDialog dialog = new TimePickerDialog(
-                getContext(),
+                requireContext(),
                 (view, hourOfDay, minute) -> {
+                    // 保存到 SharedPreferences
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putInt("threshold_hour", hourOfDay);
                     editor.putInt("threshold_minute", minute);
                     editor.apply();
+
+                    // 更新界面显示
                     String time = String.format("%02d:%02d", hourOfDay, minute);
                     tvSleepInterval.setText(time);
+                    currentHour = hourOfDay;
+                    currentMinute = minute;
+
                     Toast.makeText(getContext(), "睡眠区间已更新为 " + time, Toast.LENGTH_SHORT).show();
+
+                    // 通知 MainActivity 刷新首页的阈值显示
+                    if (getActivity() != null) {
+                        ((MainActivity) getActivity()).refreshHome();
+                    }
                 },
                 currentHour, currentMinute, true
         );
