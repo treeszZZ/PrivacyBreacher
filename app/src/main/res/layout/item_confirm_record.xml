@@ -6,7 +6,8 @@
     android:padding="12dp"
     android:layout_marginBottom="8dp"
     android:gravity="center_vertical"
-    android:background="#f5f5f5">
+    android:background="@drawable/bg_rounded_card"
+    android:backgroundTint="#F5F8FA">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -15,31 +16,33 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/dateText"
+            android:id="@+id/tvConfirmedDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="日期"
-            android:textColor="#33593b"
+            android:text="2025年01月15日 周三"
+            android:textColor="#5A7A8A"
             android:textSize="14sp" />
 
         <TextView
-            android:id="@+id/timeText"
+            android:id="@+id/tvConfirmedTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="时间"
+            android:text="23:30"
+            android:textColor="#1A2A3A"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#33593b" />
+            android:textStyle="bold" />
     </LinearLayout>
 
     <Button
-        android:id="@+id/confirmButton"
+        android:id="@+id/btnWithdraw"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#b8ddc2"
+        android:layout_height="36dp"
+        android:background="@drawable/bg_rounded_button"
+        android:backgroundTint="#D97A7A"
         android:text="撤回"
-        android:textColor="#ffffff"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp" />
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" />
 
 </LinearLayout>
