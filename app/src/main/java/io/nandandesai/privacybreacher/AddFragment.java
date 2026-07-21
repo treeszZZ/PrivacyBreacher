@@ -2,7 +2,6 @@ package io.nandandesai.privacybreacher;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +38,6 @@ public class AddFragment extends Fragment {
         btnTime = view.findViewById(R.id.btnTime);
         btnSave = view.findViewById(R.id.btnSave);
 
-        // 默认选中当前日期和时间
         Calendar cal = Calendar.getInstance();
         selectedYear = cal.get(Calendar.YEAR);
         selectedMonth = cal.get(Calendar.MONTH);
