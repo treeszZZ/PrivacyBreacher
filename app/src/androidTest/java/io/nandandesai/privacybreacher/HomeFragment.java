@@ -38,12 +38,14 @@ import java.util.Map;
 
 public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmListener {
 
+    // 待确认列表
     private RecyclerView rvPending;
     private TextView tvPendingCount, tvPendingEmpty, tvStatus, tvThreshold;
     private ConfirmAdapter pendingAdapter;
     private DataBaseHelper dbHelper;
     private SharedPreferences prefs;
 
+    // 已确认部分
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private ConfirmedPagerAdapter pagerAdapter;
@@ -61,6 +63,7 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // 所有 ID 均与 fragment_home.xml 匹配
         rvPending = view.findViewById(R.id.rvPending);
         tvPendingCount = view.findViewById(R.id.tvPendingCount);
         tvPendingEmpty = view.findViewById(R.id.tvPendingEmpty);
