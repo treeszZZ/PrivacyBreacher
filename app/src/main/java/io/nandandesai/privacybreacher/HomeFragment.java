@@ -1,5 +1,7 @@
 package io.nandandesai.privacybreacher;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -42,18 +44,30 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
         tvEmpty = view.findViewById(R.id.tvEmpty);
         tvThreshold = view.findViewById(R.id.tvThreshold);
 
-        dbHelper = new DataBaseHelper(getContext());
-        sharedPreferences = getContext().getSharedPreferences("SleepTrackerPrefs", Context.MODE_PRIVATE);
+        if (getContext() != null) {
+            dbHelper = new DataBaseHelper(getContext());
+            sharedPreferences = getContext().getSharedPreferences("SleepTrackerPrefs", Context.MODE_PRIVATE);
+        }
 
         rvRecords.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new ConfirmAdapter(getContext(), this);
         rvRecords.setAdapter(adapter);
 
+        loadData();
+    }
+
+    // 供 MainActivity 调用（设置页面修改阈值后刷新）
+    public void refreshData() {
+        loadData();
+    }
+
+    private void loadData() {
         updateThresholdDisplay();
         loadUnconfirmedRecords();
     }
 
     private void updateThresholdDisplay() {
+        if (sharedPreferences == null) return;
         int hour = sharedPreferences.getInt("threshold_hour", 22);
         int minute = sharedPreferences.getInt("threshold_minute", 0);
         String time = String.format("%02d:%02d", hour, minute);
@@ -61,6 +75,7 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
     }
 
     private void loadUnconfirmedRecords() {
+        if (dbHelper == null) return;
         Cursor cursor = dbHelper.getUnconfirmedEvents();
         List<ConfirmRecord> records = new ArrayList<>();
         if (cursor != null && cursor.moveToFirst()) {
@@ -88,8 +103,7 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
 
     @Override
     public void onConfirm(long id) {
-        int rows = dbHelper.confirmEvent(id);
-        if (rows > 0) {
+        if (dbHelper != null && dbHelper.confirmEvent(id) > 0) {
             loadUnconfirmedRecords();
         }
     }
@@ -97,8 +111,8 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
     @Override
     public void onResume() {
         super.onResume();
-        updateThresholdDisplay();
-        loadUnconfirmedRecords();
+        // 每次返回该页面时刷新数据（例如从设置页返回）
+        loadData();
     }
 
     @Override
