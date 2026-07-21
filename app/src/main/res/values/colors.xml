@@ -7,4 +7,15 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
+
+    <color name="bg_page">#E8F0F8</color>
+    <color name="text_primary">#1A2A3A</color>
+    <color name="text_secondary">#5A7A8A</color>
+    <color name="btn_confirm">#4A90D9</color>
+    <color name="btn_withdraw">#D97A7A</color>
+    <color name="card_bg_light">#F5F8FA</color>
+    <color name="divider">#E8EEF2</color>
+    <color name="calendar_blue">#4A90D9</color>
+    <color name="calendar_gray">#E8EEF2</color>
+    <color name="calendar_white_border">#D0D8E0</color>
 </resources>
