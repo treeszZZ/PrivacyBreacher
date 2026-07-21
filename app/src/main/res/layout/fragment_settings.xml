@@ -44,6 +44,34 @@
             android:gravity="center" />
     </androidx.cardview.widget.CardView>
 
+    <!-- 标色阈值设置（新增） -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="标色阈值"
+        android:textColor="#1a2a3a"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="#ffffff">
+
+        <TextView
+            android:id="@+id/tvColorThreshold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="22:00"
+            android:textColor="#1a2a3a"
+            android:textSize="18sp"
+            android:gravity="center" />
+    </androidx.cardview.widget.CardView>
+
     <!-- 使用说明 -->
     <TextView
         android:layout_width="wrap_content"
