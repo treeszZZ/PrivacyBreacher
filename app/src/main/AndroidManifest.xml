@@ -2,12 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.nandandesai.privacybreacher">
 
-    <!-- 告诉系统此应用需要 OpenGL ES 2.0 -->
     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true" />
 
-    <!-- 前台服务权限（Android 隐式授予） -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
@@ -18,9 +16,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- 主界面（启动页） -->
+        <!-- 主 Activity，使用底部导航 -->
         <activity
             android:name=".MainActivity"
+            android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,16 +27,13 @@
             </intent-filter>
         </activity>
 
-        <!-- 关于页面（保留，用于显示信息） -->
-        <activity android:name=".AboutActivity" />
-
-        <!-- 前台服务（监听屏幕事件） -->
+        <!-- 前台服务 -->
         <service
             android:name=".PrivacyBreacherService"
             android:enabled="true"
             android:exported="true" />
 
-        <!-- 广播接收器（接收屏幕开关等事件） -->
+        <!-- 广播接收器 -->
         <receiver
             android:name=".EventReceiver"
             android:enabled="true"
