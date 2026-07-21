@@ -1,100 +1,69 @@
 package io.nandandesai.privacybreacher;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.app.ActivityManager;
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.TextView;
+import android.view.MenuItem;
 
-import java.util.ArrayList;
-import java.util.List;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
-public class MainActivity extends AppCompatActivity implements ConfirmAdapter.OnConfirmListener {
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-    private RecyclerView recyclerView;
-    private TextView emptyText;
-    private ConfirmAdapter adapter;
-    private DataBaseHelper dbHelper;
+public class MainActivity extends AppCompatActivity {
+
+    private BottomNavigationView bottomNavigationView;
+
+    private final HomeFragment homeFragment = new HomeFragment();
+    private final AddFragment addFragment = new AddFragment();
+    private final SettingsFragment settingsFragment = new SettingsFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        recyclerView = findViewById(R.id.confirmRecyclerView);
-        emptyText = findViewById(R.id.emptyText);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        adapter = new ConfirmAdapter(this, this);
-        recyclerView.setAdapter(adapter);
-
-        dbHelper = new DataBaseHelper(this);
-
-        // 启动服务（如果未运行）
-        if (!isMyServiceRunning(PrivacyBreacherService.class)) {
-            Intent serviceIntent = new Intent(this, PrivacyBreacherService.class);
-            startService(serviceIntent);
+        // 默认显示首页
+        if (savedInstanceState == null) {
+            loadFragment(homeFragment);
         }
 
-        // 加载数据
-        loadUnconfirmedRecords();
-    }
-
-    private void loadUnconfirmedRecords() {
-        Cursor cursor = dbHelper.getUnconfirmedEvents();
-        List<ConfirmRecord> records = new ArrayList<>();
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                long id = cursor.getLong(cursor.getColumnIndex(DataBaseHelper.COLUMN_ID));
-                long timestamp = cursor.getLong(cursor.getColumnIndex(DataBaseHelper.COLUMN_TIMESTAMP));
-                String date = cursor.getString(cursor.getColumnIndex(DataBaseHelper.COLUMN_SLEEP_DATE));
-                String time = DataBaseHelper.formatTime(timestamp);
-                records.add(new ConfirmRecord(id, date, time, timestamp));
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
-
-        if (records.isEmpty()) {
-            emptyText.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
-        } else {
-            emptyText.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE);
-            adapter.setRecords(records);
-        }
-    }
-
-    @Override
-    public void onConfirm(long id) {
-        // 标记为已确认
-        int rows = dbHelper.confirmEvent(id);
-        if (rows > 0) {
-            // 刷新列表
-            loadUnconfirmedRecords();
-        }
-    }
-
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.navigation_home) {
+                    loadFragment(homeFragment);
+                    return true;
+                } else if (itemId == R.id.navigation_add) {
+                    loadFragment(addFragment);
+                    return true;
+                } else if (itemId == R.id.navigation_settings) {
+                    loadFragment(settingsFragment);
+                    return true;
+                }
+                return false;
             }
-        }
-        return false;
+        });
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (dbHelper != null) {
-            dbHelper.close();
-        }
+    private void loadFragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
+    }
+
+    // 供 AddFragment 调用：添加记录后切回首页并刷新
+    public void switchToHome() {
+        bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+        loadFragment(homeFragment);
+        homeFragment.refreshData();
+    }
+
+    // 供 SettingsFragment 调用：修改阈值后刷新首页显示
+    public void refreshHome() {
+        homeFragment.refreshData();
     }
 }
