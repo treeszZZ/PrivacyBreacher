@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#E0FFFF">
+
+    <!-- 标题 -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="睡眠记录"
+        android:textColor="#1a2a3a"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- 睡眠区间显示 -->
+    <TextView
+        android:id="@+id/tvThreshold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="睡眠区间：22:00"
+        android:textColor="#4682B4"
+        android:textSize="14sp"
+        android:layout_marginBottom="12dp" />
+
+    <!-- 今日状态卡片 -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="#ffffff">
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="暂无记录，今晚锁屏后自动记录"
+            android:textColor="#1a2a3a"
+            android:textSize="14sp" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- 待确认记录列表 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvRecords"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- 空状态提示（列表为空时显示） -->
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="32dp"
+        android:text="暂无待确认记录"
+        android:textColor="#8ba3c7"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+</LinearLayout>
