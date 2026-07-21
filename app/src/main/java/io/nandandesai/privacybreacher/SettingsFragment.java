@@ -17,8 +17,10 @@ import androidx.fragment.app.Fragment;
 public class SettingsFragment extends Fragment {
 
     private TextView tvSleepInterval;
+    private TextView tvColorThreshold;
     private SharedPreferences sharedPreferences;
-    private int currentHour, currentMinute;
+    private int sleepHour, sleepMinute;
+    private int colorHour, colorMinute;
 
     @Nullable
     @Override
@@ -32,47 +34,67 @@ public class SettingsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         tvSleepInterval = view.findViewById(R.id.tvSleepInterval);
+        tvColorThreshold = view.findViewById(R.id.tvColorThreshold);
         sharedPreferences = requireContext().getSharedPreferences("SleepTrackerPrefs", Context.MODE_PRIVATE);
 
-        loadThreshold();
+        loadAllSettings();
 
-        // 点击时间文本弹出时间选择器
-        tvSleepInterval.setOnClickListener(v -> showTimePicker());
+        tvSleepInterval.setOnClickListener(v -> showTimePicker("sleep"));
+        tvColorThreshold.setOnClickListener(v -> showTimePicker("color"));
     }
 
-    private void loadThreshold() {
-        int hour = sharedPreferences.getInt("threshold_hour", 22);
-        int minute = sharedPreferences.getInt("threshold_minute", 0);
-        String time = String.format("%02d:%02d", hour, minute);
-        tvSleepInterval.setText(time);
-        currentHour = hour;
-        currentMinute = minute;
+    private void loadAllSettings() {
+        // 睡眠区间
+        sleepHour = sharedPreferences.getInt("threshold_hour", 22);
+        sleepMinute = sharedPreferences.getInt("threshold_minute", 0);
+        tvSleepInterval.setText(String.format("%02d:%02d", sleepHour, sleepMinute));
+
+        // 标色阈值
+        colorHour = sharedPreferences.getInt("color_threshold_hour", 22);
+        colorMinute = sharedPreferences.getInt("color_threshold_minute", 0);
+        tvColorThreshold.setText(String.format("%02d:%02d", colorHour, colorMinute));
     }
 
-    private void showTimePicker() {
+    private void showTimePicker(String type) {
+        int hour, minute;
+        String key;
+        if ("sleep".equals(type)) {
+            hour = sleepHour;
+            minute = sleepMinute;
+            key = "睡眠区间";
+        } else {
+            hour = colorHour;
+            minute = colorMinute;
+            key = "标色阈值";
+        }
+
         TimePickerDialog dialog = new TimePickerDialog(
                 requireContext(),
-                (view, hourOfDay, minute) -> {
-                    // 保存到 SharedPreferences
+                (view, hourOfDay, minuteOfHour) -> {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putInt("threshold_hour", hourOfDay);
-                    editor.putInt("threshold_minute", minute);
+                    if ("sleep".equals(type)) {
+                        editor.putInt("threshold_hour", hourOfDay);
+                        editor.putInt("threshold_minute", minuteOfHour);
+                        sleepHour = hourOfDay;
+                        sleepMinute = minuteOfHour;
+                        tvSleepInterval.setText(String.format("%02d:%02d", hourOfDay, minuteOfHour));
+                    } else {
+                        editor.putInt("color_threshold_hour", hourOfDay);
+                        editor.putInt("color_threshold_minute", minuteOfHour);
+                        colorHour = hourOfDay;
+                        colorMinute = minuteOfHour;
+                        tvColorThreshold.setText(String.format("%02d:%02d", hourOfDay, minuteOfHour));
+                    }
                     editor.apply();
 
-                    // 更新界面显示
-                    String time = String.format("%02d:%02d", hourOfDay, minute);
-                    tvSleepInterval.setText(time);
-                    currentHour = hourOfDay;
-                    currentMinute = minute;
+                    Toast.makeText(getContext(), key + "已更新为 " + String.format("%02d:%02d", hourOfDay, minuteOfHour), Toast.LENGTH_SHORT).show();
 
-                    Toast.makeText(getContext(), "睡眠区间已更新为 " + time, Toast.LENGTH_SHORT).show();
-
-                    // 通知 MainActivity 刷新首页的阈值显示
+                    // 通知 MainActivity 刷新首页
                     if (getActivity() != null) {
                         ((MainActivity) getActivity()).refreshHome();
                     }
                 },
-                currentHour, currentMinute, true
+                hour, minute, true
         );
         dialog.show();
     }
