@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E0FFFF">
+    android:background="#E8F0F8">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,26 +11,23 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- 标题 -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="睡眠记录"
-            android:textColor="#1a2a3a"
+            android:textColor="#1A2A3A"
             android:textSize="22sp"
             android:textStyle="bold" />
 
-        <!-- 睡眠区间显示 -->
         <TextView
             android:id="@+id/tvThreshold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="睡眠区间：22:00"
-            android:textColor="#4682B4"
+            android:textColor="#5A7A8A"
             android:textSize="14sp"
             android:layout_marginTop="4dp" />
 
-        <!-- 今日状态卡片 -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,7 +35,7 @@
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="#ffffff">
+            app:cardBackgroundColor="#FFFFFF">
 
             <TextView
                 android:id="@+id/tvStatus"
@@ -46,51 +43,16 @@
                 android:layout_height="wrap_content"
                 android:padding="16dp"
                 android:text="暂无记录，今晚锁屏后自动记录"
-                android:textColor="#1a2a3a"
+                android:textColor="#1A2A3A"
                 android:textSize="14sp" />
         </androidx.cardview.widget.CardView>
 
-        <!-- 待确认记录列表 -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="待确认"
-            android:textColor="#1a2a3a"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvRecords"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false" />
-
-        <TextView
-            android:id="@+id/tvEmpty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="暂无待确认记录"
-            android:textColor="#8ba3c7"
-            android:textSize="14sp"
-            android:visibility="gone" />
-
-        <!-- 分隔线 -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#d0d0d0"
-            android:layout_marginVertical="16dp" />
-
-        <!-- 月度日历 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
 
-            <!-- 标题栏：月份 + 翻页箭头 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -98,115 +60,82 @@
                 android:gravity="center_vertical">
 
                 <TextView
-                    android:id="@+id/tvMonthYear"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="2025年1月"
-                    android:textColor="#1a2a3a"
+                    android:text="待确认"
+                    android:textColor="#1A2A3A"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <ImageButton
-                    android:id="@+id/btnPrevMonth"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:src="@drawable/ic_chevron_left"
-                    android:background="@null"
-                    android:contentDescription="上个月" />
-
-                <ImageButton
-                    android:id="@+id/btnNextMonth"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:src="@drawable/ic_chevron_right"
-                    android:background="@null"
-                    android:contentDescription="下个月" />
-            </LinearLayout>
-
-            <!-- 星期行 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
-                <TextView style="@style/CalendarWeekDay" android:text="日" />
-                <TextView style="@style/CalendarWeekDay" android:text="一" />
-                <TextView style="@style/CalendarWeekDay" android:text="二" />
-                <TextView style="@style/CalendarWeekDay" android:text="三" />
-                <TextView style="@style/CalendarWeekDay" android:text="四" />
-                <TextView style="@style/CalendarWeekDay" android:text="五" />
-                <TextView style="@style/CalendarWeekDay" android:text="六" />
-            </LinearLayout>
-
-            <!-- 日期网格 -->
-            <GridLayout
-                android:id="@+id/calendarGrid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:columnCount="7" />
-
-            <!-- 图例 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:padding="4dp">
-
-                <View
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:background="#4682B4"
-                    android:layout_marginEnd="4dp" />
                 <TextView
+                    android:id="@+id/tvPendingCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="≤ 阈值"
-                    android:textColor="#1a2a3a"
-                    android:textSize="12sp"
-                    android:layout_marginEnd="16dp" />
-
-                <View
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:background="#ffffff"
-                    android:layout_marginEnd="4dp" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="> 阈值"
-                    android:textColor="#1a2a3a"
-                    android:textSize="12sp"
-                    android:layout_marginEnd="16dp" />
-
-                <View
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:background="#e0e0e0"
-                    android:layout_marginEnd="4dp" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="无记录"
-                    android:textColor="#1a2a3a"
+                    android:text="0 条待确认"
+                    android:textColor="#D97A7A"
                     android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- 点击日期详情显示 -->
-            <TextView
-                android:id="@+id/tvDayDetail"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPending"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="12dp"
                 android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false" />
+
+            <TextView
+                android:id="@+id/tvPendingEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textColor="#1a2a3a"
+                android:padding="16dp"
+                android:text="暂无待确认记录"
+                android:textColor="#8BA3C7"
                 android:textSize="14sp"
-                android:background="#f0f4f8"
-                android:text="点击日期查看详情" />
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="已确认记录"
+                android:textColor="#1A2A3A"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:tabTextColor="#5A7A8A"
+                app:tabSelectedTextColor="#4A90D9"
+                app:tabIndicatorColor="#4A90D9"
+                app:tabMode="fixed"
+                app:tabGravity="fill">
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="列表" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="日历" />
+            </com.google.android.material.tabs.TabLayout>
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
 
         </LinearLayout>
 
