@@ -38,14 +38,12 @@ import java.util.Map;
 
 public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmListener {
 
-    // 待确认列表
     private RecyclerView rvPending;
     private TextView tvPendingCount, tvPendingEmpty, tvStatus, tvThreshold;
     private ConfirmAdapter pendingAdapter;
     private DataBaseHelper dbHelper;
     private SharedPreferences prefs;
 
-    // 已确认部分
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private ConfirmedPagerAdapter pagerAdapter;
@@ -63,7 +61,6 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 所有 ID 均与 fragment_home.xml 匹配
         rvPending = view.findViewById(R.id.rvPending);
         tvPendingCount = view.findViewById(R.id.tvPendingCount);
         tvPendingEmpty = view.findViewById(R.id.tvPendingEmpty);
@@ -95,10 +92,14 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                if (position == 0) {
-                    pagerAdapter.getListFragment().showSortButton(true);
-                } else {
-                    pagerAdapter.getListFragment().showSortButton(false);
+                // 安全调用：检查 Fragment 是否已附加
+                ConfirmedListFragment listFragment = pagerAdapter.getListFragment();
+                if (listFragment != null && listFragment.isAdded()) {
+                    if (position == 0) {
+                        listFragment.showSortButton(true);
+                    } else {
+                        listFragment.showSortButton(false);
+                    }
                 }
             }
         });
@@ -110,7 +111,15 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
         loadThresholdDisplay();
         loadPendingRecords();
         updatePendingCount();
-        pagerAdapter.notifyAllFragments();
+        // 安全刷新：检查适配器中的 Fragment 是否已附加
+        ConfirmedListFragment listFragment = pagerAdapter.getListFragment();
+        if (listFragment != null && listFragment.isAdded()) {
+            listFragment.refreshList();
+        }
+        ConfirmedCalendarFragment calendarFragment = pagerAdapter.getCalendarFragment();
+        if (calendarFragment != null && calendarFragment.isAdded()) {
+            calendarFragment.refreshCalendar();
+        }
     }
 
     private void loadThresholdDisplay() {
@@ -191,7 +200,7 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
             currentOrder = "DESC";
         }
         ConfirmedListFragment listFragment = pagerAdapter.getListFragment();
-        if (listFragment != null) {
+        if (listFragment != null && listFragment.isAdded()) {
             listFragment.updateSortButtonText(currentOrder);
             listFragment.refreshList();
         }
@@ -200,7 +209,10 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
     @Override
     public void onResume() {
         super.onResume();
-        loadAllData();
+        // 从其他页面返回时刷新数据
+        if (isAdded() && getContext() != null) {
+            loadAllData();
+        }
     }
 
     @Override
@@ -238,9 +250,8 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
             return listFragment;
         }
 
-        public void notifyAllFragments() {
-            if (listFragment != null) listFragment.refreshList();
-            if (calendarFragment != null) calendarFragment.refreshCalendar();
+        public ConfirmedCalendarFragment getCalendarFragment() {
+            return calendarFragment;
         }
     }
 
@@ -287,10 +298,15 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
         }
 
         public void showSortButton(boolean show) {
-            tvSortButton.setVisibility(show ? View.VISIBLE : View.GONE);
+            if (isAdded()) {
+                tvSortButton.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
         }
 
         public void refreshList() {
+            if (!isAdded() || getContext() == null) {
+                return;
+            }
             if (parent == null || parent.dbHelper == null) {
                 if (adapter != null) {
                     adapter.setRecords(new ArrayList<>());
@@ -371,8 +387,12 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
         }
 
         public void refreshCalendar() {
-            if (parent == null || parent.dbHelper == null) return;
-            if (!isAttached) return;
+            if (!isAdded() || getContext() == null) {
+                return;
+            }
+            if (parent == null || parent.dbHelper == null) {
+                return;
+            }
 
             DataBaseHelper helper = parent.dbHelper;
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
