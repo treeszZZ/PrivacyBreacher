@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,6 +50,7 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
     private ConfirmedPagerAdapter pagerAdapter;
 
     private String currentOrder = "DESC";
+    private Handler handler = new Handler();
 
     @Nullable
     @Override
@@ -92,34 +94,53 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                // 安全调用：检查 Fragment 是否已附加
-                ConfirmedListFragment listFragment = pagerAdapter.getListFragment();
-                if (listFragment != null && listFragment.isAdded()) {
-                    if (position == 0) {
-                        listFragment.showSortButton(true);
-                    } else {
-                        listFragment.showSortButton(false);
+                handler.post(() -> {
+                    if (!isAdded() || getContext() == null) return;
+                    // 更新排序按钮可见性
+                    Fragment fragment = getCurrentConfirmedFragment();
+                    if (fragment instanceof ConfirmedListFragment) {
+                        ((ConfirmedListFragment) fragment).showSortButton(true);
+                    } else if (fragment instanceof ConfirmedCalendarFragment) {
+                        ((ConfirmedCalendarFragment) fragment).showSortButton(false);
                     }
-                }
+                });
             }
         });
 
-        loadAllData();
+        handler.post(() -> {
+            if (isAdded() && getContext() != null) {
+                loadAllData();
+            }
+        });
+    }
+
+    // 获取当前可见的子 Fragment
+    private Fragment getCurrentConfirmedFragment() {
+        if (viewPager == null || getChildFragmentManager() == null) return null;
+        // 通过 tag 获取，ViewPager2 的默认 tag 是 "f" + 位置
+        String tag = "f" + viewPager.getCurrentItem();
+        return getChildFragmentManager().findFragmentByTag(tag);
+    }
+
+    // 获取所有子 Fragment 并刷新
+    private void refreshAllChildFragments() {
+        if (!isAdded() || getChildFragmentManager() == null) return;
+        List<Fragment> fragments = getChildFragmentManager().getFragments();
+        for (Fragment f : fragments) {
+            if (f instanceof ConfirmedListFragment) {
+                ((ConfirmedListFragment) f).refreshList();
+            } else if (f instanceof ConfirmedCalendarFragment) {
+                ((ConfirmedCalendarFragment) f).refreshCalendar();
+            }
+        }
     }
 
     private void loadAllData() {
+        if (!isAdded() || getContext() == null) return;
         loadThresholdDisplay();
         loadPendingRecords();
         updatePendingCount();
-        // 安全刷新：检查适配器中的 Fragment 是否已附加
-        ConfirmedListFragment listFragment = pagerAdapter.getListFragment();
-        if (listFragment != null && listFragment.isAdded()) {
-            listFragment.refreshList();
-        }
-        ConfirmedCalendarFragment calendarFragment = pagerAdapter.getCalendarFragment();
-        if (calendarFragment != null && calendarFragment.isAdded()) {
-            calendarFragment.refreshCalendar();
-        }
+        refreshAllChildFragments();
     }
 
     private void loadThresholdDisplay() {
@@ -199,20 +220,23 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
         } else {
             currentOrder = "DESC";
         }
-        ConfirmedListFragment listFragment = pagerAdapter.getListFragment();
-        if (listFragment != null && listFragment.isAdded()) {
-            listFragment.updateSortButtonText(currentOrder);
-            listFragment.refreshList();
+        // 更新列表 Fragment 的排序按钮文字并刷新列表
+        Fragment fragment = getCurrentConfirmedFragment();
+        if (fragment instanceof ConfirmedListFragment) {
+            ConfirmedListFragment listFrag = (ConfirmedListFragment) fragment;
+            listFrag.updateSortButtonText(currentOrder);
+            listFrag.refreshList();
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // 从其他页面返回时刷新数据
-        if (isAdded() && getContext() != null) {
-            loadAllData();
-        }
+        handler.post(() -> {
+            if (isAdded() && getContext() != null) {
+                loadAllData();
+            }
+        });
     }
 
     @Override
@@ -221,37 +245,28 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
         if (dbHelper != null) {
             dbHelper.close();
         }
+        handler.removeCallbacksAndMessages(null);
     }
 
     // ===== ViewPager Adapter =====
     private class ConfirmedPagerAdapter extends FragmentStateAdapter {
-        private ConfirmedListFragment listFragment;
-        private ConfirmedCalendarFragment calendarFragment;
-
         public ConfirmedPagerAdapter(@NonNull Fragment fragment) {
             super(fragment);
-            listFragment = new ConfirmedListFragment();
-            calendarFragment = new ConfirmedCalendarFragment();
         }
 
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            if (position == 0) return listFragment;
-            else return calendarFragment;
+            if (position == 0) {
+                return new ConfirmedListFragment();
+            } else {
+                return new ConfirmedCalendarFragment();
+            }
         }
 
         @Override
         public int getItemCount() {
             return 2;
-        }
-
-        public ConfirmedListFragment getListFragment() {
-            return listFragment;
-        }
-
-        public ConfirmedCalendarFragment getCalendarFragment() {
-            return calendarFragment;
         }
     }
 
@@ -290,6 +305,7 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
         }
 
         public void updateSortButtonText(String order) {
+            if (!isAdded()) return;
             if ("DESC".equals(order)) {
                 tvSortButton.setText("倒序");
             } else {
@@ -298,15 +314,12 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
         }
 
         public void showSortButton(boolean show) {
-            if (isAdded()) {
-                tvSortButton.setVisibility(show ? View.VISIBLE : View.GONE);
-            }
+            if (!isAdded()) return;
+            tvSortButton.setVisibility(show ? View.VISIBLE : View.GONE);
         }
 
         public void refreshList() {
-            if (!isAdded() || getContext() == null) {
-                return;
-            }
+            if (!isAdded() || getContext() == null) return;
             if (parent == null || parent.dbHelper == null) {
                 if (adapter != null) {
                     adapter.setRecords(new ArrayList<>());
@@ -386,13 +399,13 @@ public class HomeFragment extends Fragment implements ConfirmAdapter.OnConfirmLi
             return view;
         }
 
+        public void showSortButton(boolean show) {
+            // 日历不需要排序按钮，此方法空实现
+        }
+
         public void refreshCalendar() {
-            if (!isAdded() || getContext() == null) {
-                return;
-            }
-            if (parent == null || parent.dbHelper == null) {
-                return;
-            }
+            if (!isAdded() || getContext() == null) return;
+            if (parent == null || parent.dbHelper == null) return;
 
             DataBaseHelper helper = parent.dbHelper;
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
