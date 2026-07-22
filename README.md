@@ -61,28 +61,6 @@
 ### 使用方式
 克隆项目-生成 APK-手机下载
 
-### 项目结构（精简）
-text
-app/src/main/
-├── java/io/nandandesai/privacybreacher/
-│   ├── MainActivity.java              # 主入口
-│   ├── HomeFragment.java              # 首页（含待确认 + 已确认记录）
-│   ├── SettingsFragment.java          # 设置页面
-│   ├── AddFragment.java               # 手动添加记录
-│   ├── DataBaseHelper.java            # 数据库操作
-│   ├── EventReceiver.java             # 锁屏广播接收
-│   ├── PrivacyBreacherService.java    # 后台服务
-│   ├── ConfirmAdapter.java            # 待确认列表适配器
-│   ├── ConfirmedAdapter.java          # 已确认列表适配器
-│   ├── ConfirmedRecord.java           # 已确认记录实体
-│   └── ConfirmRecord.java             # 待确认记录实体
-├── res/
-│   ├── layout/                        # 所有布局文件
-│   ├── drawable/                      # 图标与样式资源
-│   ├── values/                        # 颜色、字符串、样式
-│   └── xml/                           # FileProvider 配置
-└── AndroidManifest.xml                # 清单文件
-
 ---
 
 ## 使用说明
