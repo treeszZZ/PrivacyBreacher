@@ -18,15 +18,15 @@
 
 ## 技术栈
 
-| Android SDK (Java) | 原生安卓开发 |
-| SQLite | 本地数据持久化 |
-| SharedPreferences | 用户设置存储 |
-| BroadcastReceiver | 监听系统锁屏广播 |
-| Foreground Service | 后台持续运行 |
-| RecyclerView + ViewPager2 | 列表与日历视图切换 |
-| TabLayout | 视图切换指示器 |
-| AlertDialog | 确认/撤回弹窗 |
-| FileProvider | 导出文件分享 |
+- | Android SDK (Java) | 原生安卓开发
+- | SQLite | 本地数据持久化
+- | SharedPreferences | 用户设置存储
+- | BroadcastReceiver | 监听系统锁屏广播
+- | Foreground Service | 后台持续运行
+- | RecyclerView + ViewPager2 | 列表与日历视图切换
+- | TabLayout | 视图切换指示器
+- | AlertDialog | 确认/撤回弹窗
+- | FileProvider | 导出文件分享
 
 ---
 
@@ -58,12 +58,12 @@
 ### 使用说明
 克隆项目-生成 APK-手机下载
 
-首次使用：打开 App，进入设置页面，调整睡眠区间和标色阈值。
-日常使用：正常锁屏即可，App 会在后台自动记录。
-确认记录：第二天打开 App，在首页待确认列表中点击确认即可。
-查看统计：切换到已确认记录的列表或日历视图。
-撤回误操作：在已确认列表中点击撤回，记录回到待确认列表。
-导出数据：设置页面点击导出数据，生成 CSV 文件并分享。
+- 首次使用：打开 App，进入设置页面，调整睡眠区间和标色阈值。
+- 日常使用：正常锁屏即可，App 会在后台自动记录。
+- 确认记录：第二天打开 App，在首页待确认列表中点击确认即可。
+- 查看统计：切换到已确认记录的列表或日历视图。
+- 撤回误操作：在已确认列表中点击撤回，记录回到待确认列表。
+- 导出数据：设置页面点击导出数据，生成 CSV 文件并分享。
 
 ---
 
